@@ -16,7 +16,15 @@
 
 
 void *SVC_XINU_NULLPROCESS(uint32 *sp){
-
+    struct procent * p;
+    p = (struct procent *) sp[1]; 
+            asm volatile ("mov r0, %0" : : "r" (p->prstkptr));
+                    asm volatile("ldmia r0!, {r4-r11} ");
+                    asm volatile ("msr psp, r0");
+                    asm volatile (
+                          "ldr r0, =0xFFFFFFFD" "\n\t"
+                          "mov lr, r0" "\n\t"
+                          "bx lr");
     return sp; 
 }
 void *SVC_XINU_PUTC (uint32 *sp){

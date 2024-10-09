@@ -374,7 +374,7 @@ extern  syscall yield(void);
 */
 
 void OTG_FS_Handler(void) {
-   asm volatile("cpsid i");
+   //asm volatile("cpsid i");
    usbd_poll(&udev);
-   asm volatile("cpsie i");
+   //asm volatile("cpsie i");
 }

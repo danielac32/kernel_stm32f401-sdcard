@@ -22,6 +22,7 @@
 #include "disk.h"
 #include "fat_filelib.h"
 #include <syscall.h>
+#include <w25qxxx.h>
 syscall_t syscallp;
 extern	void	start(void);	/* Start of Xinu code			*/
 extern	void	*_end;		/* End of Xinu code			*/
@@ -101,7 +102,7 @@ int  initFat32(){
 
 
 int usbTask(){
-    do{
+    while(1){
        if(usb_available()){
             // printf("aqui usb\n" );
             //kputc(usb_getc());
@@ -110,17 +111,18 @@ int usbTask(){
             //restore(q);
         }
         //printf("usbTask\n");
-        sleepms(1);
-    }while(usb_available());
+    }
     return 0;
 }
 
 
+
+
+
+
 int nullprocess(void) {
-	//resume(create(shell, 4096/2, 50, "shell", 1, 0));
-	//printf("nullprocess\n");
-	//putc('D', CONSOLE);
-	//receive();
+	//ready(create(usbTask, 2048, 1, "usbtask", 0));
+	 
     //resume(create(blink1, INITSTK, 50, "blink1", 0));
   syscall_init(&syscallp);
   //syscallp.putc(CONSOLE,'a');
@@ -137,6 +139,9 @@ int nullprocess(void) {
 	//for(;;){
 
 	//}
+
+
+    //load_sd_file( 0, "kernel.bin" );
 	return OK;
 }
 
@@ -196,7 +201,7 @@ void	nulluser()
 	int pid = create((void *)nullprocess, 1024, 10, "Null process", 0, NULL);
 	struct procent * prptr = &proctab[pid];
 	prptr->prstate = PR_CURR;
-  
+ 
 	
 	/* Initialize the real time clock */
 	clkinit();
@@ -204,6 +209,9 @@ void	nulluser()
     TIM2->CR1 |= (1 << 0); 
     ready_preemptive=1;
     NVIC_EnableIRQ(TIM2_IRQn);
+    //__syscall(XINU_NULLPROCESS,prptr);
+
+
     asm volatile ("mov r0, %0\n" : : "r" (prptr->prstkptr));
 	  asm volatile ("msr psp, r0");
 	  asm volatile ("ldmia r0!, {r4-r11} ");
@@ -211,7 +219,8 @@ void	nulluser()
 	  asm volatile ("mov r0, #2");
 	  asm volatile ("msr control, r0");
 	  asm volatile ("isb");
-    nullprocess();
+      nullprocess();
+     //PEND_SV();
 
 	for(;;);
 

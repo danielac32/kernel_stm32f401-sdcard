@@ -32,9 +32,9 @@ void TIM2_Handler()
 	    TIM2->SR &= ~(1U << 0);
         if(usb_available()){
         	//kputc(usb_getc());
-        	uint32 q = disable();
+        	//uint32 q = disable();
         	ttyhandler(1,usb_getc(),0);
-        	restore(q);
+        	//restore(q);
         }
 
 		count1000++;

@@ -8,7 +8,7 @@
 #define W25Q32 	0XEF15
 #define W25Q64 	0XEF16
 #define W25Q128  0XEF17
-#define SPI_FLASH_SECTOR_COUNT   (31250-3906)//16m/512=31250// aqui se le restaran 2m que es igual a 2m/512=3906
+#define SPI_FLASH_SECTOR_COUNT   (31250/*-3906*/)//16m/512=31250// aqui se le restaran 2m que es igual a 2m/512=3906
 #define FLASH_SECTOR_SIZE  512 
 #define FLASH_SECTOR_SIZE4K  4096 
 //#define	SPI_FLASH_CS PCout(4)  //选中FLASH	
@@ -73,3 +73,44 @@ typedef struct w25qxxx_drv4K
 	unsigned char (*write) (const uint8_t *txbuf, uint32_t sector, uint32_t count);
 } w25qxxx_drv_t4K;
 extern const w25qxxx_drv_t w25qxxx_drv;
+
+void w25q_load_data( void *d, uint32_t addr, uint32_t size );
+void w25q_read_data( void *buf, uint32_t addr, uint32_t size );
+
+//void cache_read(uint32_t addr, void *ptr, uint8_t size);
+//void cache_write(uint32_t addr, void *ptr, uint8_t size);
+//void cache_reset();
+//int load_sd_file( uint32_t addr, const char filename[] );
+
+
+void cache_write(uint32_t ofs, void *buf, uint32_t size);
+void cache_read(uint32_t ofs, void *buf, uint32_t size);
+void cache_get_stat(uint64_t *phit, uint64_t *paccessed);
+
+
+
+
+#define BLOCK 0xfff
+extern void cachebegin(uint32_t size);
+extern void cachewrite(uint32_t address,uint8 value);
+extern uint8_t cacheread(uint32_t address);
+extern uint32_t cacheget_size();
+
+extern uint8_t lowmemRAM[];
+extern uint8_t cacheRAM1[];
+extern uint8_t cacheRAM2[];
+//extern uint8_t cacheRAM3[];
+//extern uint8_t cacheRAM4[];
+
+extern uint32_t block1;
+extern uint32_t block2;
+//extern uint32_t block3;
+//extern uint32_t block4;
+
+extern uint8_t dirty1;
+extern uint8_t dirty2;
+//extern uint8_t dirty3;
+//extern uint8_t dirty4;
+
+extern uint8_t NextCacheUse;
+extern uint32_t max;

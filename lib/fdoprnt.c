@@ -1,9 +1,9 @@
 /* fdoprnt.c - _fdoprnt, _prtl2, _prtl8, _prtl10, _prtX16, _prtl16 */
 
 #include <stdarg.h>
-
+#include <stdlib.h>
 #define	MAXSTR	80
-#define NULL    0
+//#define NULL    0
 
 static void _prtl10(long num, char *str);
 static void _prtl8(long num, char *str);
@@ -17,7 +17,7 @@ static void _prtl2(long num, char *str);
  *				 All arguments passed as 4 bytes, long==int.
  *------------------------------------------------------------------------
  */
-
+#if 0
 void    _fdoprnt2(
       char      *fmt,           /* format string    */
       va_list   ap,         /* ap list of values    */
@@ -245,6 +245,52 @@ void    _fdoprnt2(
     }
 
 }
+#endif
+
+
+ 
+void float_to_string(float num, char *str, int decimals) {
+    // Manejo del signo
+    if (num < 0) {
+        *str++ = '-';
+        num = -num; // Hacer el número positivo para facilitar la conversión
+    }
+
+    // Parte entera
+    int int_part = (int)num;
+    float fraction_part = num - int_part;
+
+    // Convertir parte entera a string
+    char int_str[20]; // Buffer para la parte entera
+    int i = 0;
+
+    // Convertir la parte entera en reversa
+    do {
+        int_str[i++] = (int_part % 10) + '0';
+        int_part /= 10;
+    } while (int_part > 0);
+
+    // Agregar la parte entera a la cadena en orden correcto
+    while (i > 0) {
+        *str++ = int_str[--i];
+    }
+
+    // Manejar la parte fraccionaria
+    if (decimals > 0) {
+        *str++ = '.'; // Agregar el punto decimal
+
+        // Convertir parte fraccionaria a string
+        for (int j = 0; j < decimals; j++) {
+            fraction_part *= 10;
+            int frac_digit = (int)fraction_part;
+            *str++ = frac_digit + '0';
+            fraction_part -= frac_digit; // Remover la parte entera
+        }
+    }
+
+    *str = '\0'; // Terminar la cadena
+}
+
 
 void	_fdoprnt(
 	  char		*fmt,			/* format string	*/
@@ -268,7 +314,7 @@ void	_fdoprnt(
     char sign;                  /* Set to '-' for negative decimals     */
     char digit1;                /* Offset to add to first numeric digit */
     long larg;
-
+    float value;
     for (;;)
     {
         /* Echo characters until '%' or end of fmt string */
@@ -353,7 +399,15 @@ void	_fdoprnt(
             }
             fill = ' ';
             break;
-
+        case 'f':
+            /*value = va_arg(ap, float);
+            if (value < 0)
+            {
+                sign = '-';
+                value = -value;
+            }*/
+            //float_to_string(3,str, 2); 
+            break;
         case 'd':
             larg = va_arg(ap, long);
 
