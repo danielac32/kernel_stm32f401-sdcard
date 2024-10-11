@@ -34,7 +34,7 @@ shellcmd xsh_test(int nargs, char *args[])
 	}*/
 
    //cachebegin(4000000);
-	//load_sd_file( 0, "riscv/kernel.bin" );
+	load_sd_file( 0, "riscv/kernel.bin" );
    
     /*uint8 d = cacheread(0x219d0);
     printf("%02x\n",d);

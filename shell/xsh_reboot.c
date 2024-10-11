@@ -1,7 +1,7 @@
 /* xsh_echo.c - xsh_echo */
 
 #include <xinu.h>
-#include <stdio.h>
+#include <stm32.h>
 
 
 #define VARADDR 0x0800C000 // address that will hold the variable
@@ -42,5 +42,7 @@ shellcmd xsh_reboot(int nargs, char *args[])
 
    // uint32 r = syscall3(XINU_TEST2,0,0,0);
     //printf("%d\n", r);
+
+    NVIC_SystemReset();
 	return 0;
 }

@@ -77,16 +77,17 @@ extern const w25qxxx_drv_t w25qxxx_drv;
 void w25q_load_data( void *d, uint32_t addr, uint32_t size );
 void w25q_read_data( void *buf, uint32_t addr, uint32_t size );
 
-//void cache_read(uint32_t addr, void *ptr, uint8_t size);
-//void cache_write(uint32_t addr, void *ptr, uint8_t size);
-//void cache_reset();
-//int load_sd_file( uint32_t addr, const char filename[] );
 
+#if 0
+void cache_read(uint32_t addr, void *ptr, uint8_t size);
+void cache_write(uint32_t addr, void *ptr, uint8_t size);
+void cache_reset();
 
-void cache_write(uint32_t ofs, void *buf, uint32_t size);
-void cache_read(uint32_t ofs, void *buf, uint32_t size);
+#else
+void cache_write(uint32_t , void *, uint32_t );
+void cache_read(uint32_t , void *, uint32_t );
 void cache_get_stat(uint64_t *phit, uint64_t *paccessed);
-
+#endif
 
 
 

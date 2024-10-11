@@ -289,7 +289,7 @@ const w25qxxx_drv_t w25qxxx_drv =
 
 
  
-
+/*
 
 uint8_t lowmemRAM[BLOCK];
 uint8_t cacheRAM1[BLOCK];
@@ -420,4 +420,4 @@ uint8_t cacheread(uint32_t address){
       NextCacheUse&=2;
       return cacheRAM2[address&0x00000fff]; //Now found it in cache2
     }
-}
+}*/
