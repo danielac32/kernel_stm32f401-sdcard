@@ -1,11 +1,11 @@
 #include <xinu.h>
-#include <w25qxxx.h>
+//#include <w25qxxx.h>
+#include <emulator.h>
 
 
 
-
-#define psram_read(addr, buf, len) SPI_Flash_Read(buf,addr,len)
-#define psram_write(addr, buf, len) SPI_Flash_Write(buf,addr,len)
+//#define psram_read(addr, buf, len) SPI_Flash_Read(buf,addr,len)
+//#define psram_write(addr, buf, len) SPI_Flash_Write(buf,addr,len)
 
 
 #if 0
@@ -229,6 +229,8 @@ static inline int get_index(uint32_t addr)
 
 void cache_write(uint32_t ofs, void *buf, uint32_t size)
 {
+    __disable_irq();     
+
     if (((ofs | (64 - 1)) != ((ofs + size - 1) | (64 - 1))))
         printf("write cross boundary, ofs:%x size:%x\n", ofs, size);
 
@@ -277,10 +279,12 @@ void cache_write(uint32_t ofs, void *buf, uint32_t size)
     tags[index][1] |= (ti << LRU_SFT);
     memcpy(p + (ofs & 0x3f), buf, size);
     *tp |= DIRTY;
+    __enable_irq();          
 }
 
 void cache_read(uint32_t ofs, void *buf, uint32_t size)
 {
+    __disable_irq();  
     if (((ofs | (64 - 1)) != ((ofs + size - 1) | (64 - 1))))
         printf("read cross boundary, ofs:%x size:%x\n", ofs, size);
 
@@ -327,6 +331,7 @@ void cache_read(uint32_t ofs, void *buf, uint32_t size)
     tags[index][1] &= ~(LRU);
     tags[index][1] |= (ti << LRU_SFT);
     memcpy(buf, p + (ofs & 0x3f), size);
+    __enable_irq();          
 }
 
 void cache_get_stat(uint64_t *phit, uint64_t *paccessed)

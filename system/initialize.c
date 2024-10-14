@@ -131,7 +131,7 @@ int nullprocess(void) {
   //ready(create(usbTask, 1024, 1, "usbtask", 0));
   
   
-	resume(create(shell, 2048, 52, "shell", 1, CONSOLE));
+	resume(create(shell, 4096, 52, "shell", 1, CONSOLE));
 	resume(create(initFat32, 1024, 50, "fat32", 0));
 	//resume(create(usbTask, 2048, 1, "usbtask", 0));
 	//resume(create(blink, 1024/2, 51, "blink", 0));
@@ -166,7 +166,7 @@ void	nulluser()
 	/* Initialize the system */
    
     while(1){
-        if(!hw_get_pin(GPIOx(GPIO_A),0)){
+        if(!hw_get_pin(GPIOx(GPIO_A),0) || usb_available()){
             break;
         }
         hw_toggle_pin(GPIOx(GPIO_C),13);
@@ -213,13 +213,13 @@ void	nulluser()
 
 
     asm volatile ("mov r0, %0\n" : : "r" (prptr->prstkptr));
-	  asm volatile ("msr psp, r0");
-	  asm volatile ("ldmia r0!, {r4-r11} ");
+	asm volatile ("msr psp, r0");
+	asm volatile ("ldmia r0!, {r4-r11} ");
     asm volatile ("msr psp, r0");
-	  asm volatile ("mov r0, #2");
-	  asm volatile ("msr control, r0");
-	  asm volatile ("isb");
-      nullprocess();
+	asm volatile ("mov r0, #2");
+	asm volatile ("msr control, r0");
+	asm volatile ("isb");
+    nullprocess();
      //PEND_SV();
 
 	for(;;);

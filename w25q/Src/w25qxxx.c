@@ -7,23 +7,28 @@
 static flash_info_t flashinfo;
 uint16_t SPI_FLASH_TYPE=W25Q128;//默认就是25Q16
 
+
 void SPI_Flash_Init(void)
 {   
+   __disable_irq();       
     hal_w25q_spi_init();
     hal_w25q_spi_release();
     SPI_FLASH_TYPE=SPI_Flash_ReadID();//读取FLASH ID.  
     flashinfo.sect_size = 512;
     flashinfo.card_size = SPI_FLASH_SECTOR_COUNT;//16000000/512
     //hw_toggle_pin(GPIOx(GPIO_C),13);
+    __enable_irq();
 }  
 
 uint8_t SPI_Flash_ReadSR(void)   
 {  
     uint8_t byte=0;   
+    __disable_irq();       
     hal_w25q_spi_select();                            //使能器件   
     hal_w25q_spi_txrx(W25X_ReadStatusReg);    //发送读取状态寄存器命令    
     byte=hal_w25q_spi_txrx(0Xff);             //读取一个字节  
-    hal_w25q_spi_release();                            //取消片选     
+    hal_w25q_spi_release();     
+     __enable_irq();                       //取消片选     
     return byte;   
 } 
  
@@ -65,36 +70,42 @@ uint16_t SPI_Flash_ReadID(void)
  
 void SPI_Flash_Read(uint8_t* pBuffer,uint32_t ReadAddr,uint16_t NumByteToRead)   
 { 
-  uint16_t i;                                                     
+  uint16_t i;   
+  __disable_irq();                                                   
   hal_w25q_spi_select();                            //使能器件   
   hal_w25q_spi_txrx(W25X_ReadData);         //发送读取命令   
-  hal_w25q_spi_txrx((uint8_t)((ReadAddr)>>16));  //发送24bit地址    
-  hal_w25q_spi_txrx((uint8_t)((ReadAddr)>>8));   
-  hal_w25q_spi_txrx((uint8_t)ReadAddr);   
+  hal_w25q_spi_txrx((uint8_t)((ReadAddr)>>16) & 0xff); //发送24bit地址    
+  hal_w25q_spi_txrx((uint8_t)((ReadAddr)>>8) & 0xff);   
+  hal_w25q_spi_txrx((uint8_t)ReadAddr & 0xff);   
   for(i=0;i<NumByteToRead;i++)
   { 
       pBuffer[i]=hal_w25q_spi_txrx(0XFF);   //循环读数  
   }
-    hal_w25q_spi_release();                            //取消片选             
+    hal_w25q_spi_release();   
+  __enable_irq();                         //取消片选             
 }  
 
 void SPI_Flash_Write_Page(uint8_t* pBuffer,uint32_t WriteAddr,uint16_t NumByteToWrite)
 {
     uint16_t i;  
+  __disable_irq();  
   SPI_FLASH_Write_Enable();                  //SET WEL 
     hal_w25q_spi_select();                            //使能器件   
   hal_w25q_spi_txrx(W25X_PageProgram);      //发送写页命令   
-  hal_w25q_spi_txrx((uint8_t)((WriteAddr)>>16)); //发送24bit地址    
-  hal_w25q_spi_txrx((uint8_t)((WriteAddr)>>8));   
-  hal_w25q_spi_txrx((uint8_t)WriteAddr);   
+  hal_w25q_spi_txrx((uint8_t)((WriteAddr)>>16) & 0xff); //发送24bit地址    
+  hal_w25q_spi_txrx((uint8_t)((WriteAddr)>>8) & 0xff);   
+  hal_w25q_spi_txrx((uint8_t)WriteAddr & 0xff);   
   for(i=0;i<NumByteToWrite;i++)hal_w25q_spi_txrx(pBuffer[i]);//循环写数  
     hal_w25q_spi_release();                            //取消片选 
     SPI_Flash_Wait_Busy();                     //等待写入结束
+    __enable_irq();      
 } 
 
 void SPI_Flash_Write_NoCheck(uint8_t* pBuffer,uint32_t WriteAddr,uint16_t NumByteToWrite)   
 {                    
-    uint16_t pageremain;       
+    uint16_t pageremain;    
+    __disable_irq();  
+
     pageremain=256-WriteAddr%256; //单页剩余的字节数                
     if(NumByteToWrite<=pageremain)pageremain=NumByteToWrite;//不大于256个字节
     while(1)
@@ -110,7 +121,8 @@ void SPI_Flash_Write_NoCheck(uint8_t* pBuffer,uint32_t WriteAddr,uint16_t NumByt
             if(NumByteToWrite>256)pageremain=256; //一次可以写入256个字节
             else pageremain=NumByteToWrite;       //不够256个字节了
         }
-    };      
+    };     
+    __enable_irq();       
 } 
  
 
@@ -121,7 +133,7 @@ void SPI_Flash_Write(uint8_t* pBuffer,uint32_t WriteAddr,uint16_t NumByteToWrite
     uint16_t secoff;
     uint16_t secremain;    
     uint16_t i;    
-
+    __disable_irq();  
     secpos=WriteAddr/4096;//扇区地址 0~511 for w25x16
     secoff=WriteAddr%4096;//在扇区内的偏移
     secremain=4096-secoff;//扇区剩余空间大小   
@@ -156,7 +168,8 @@ void SPI_Flash_Write(uint8_t* pBuffer,uint32_t WriteAddr,uint16_t NumByteToWrite
             if(NumByteToWrite>4096)secremain=4096;  //下一个扇区还是写不完
             else secremain=NumByteToWrite;          //下一个扇区可以写完了
         }    
-    };       
+    };      
+    __enable_irq();       
 }
  
 
@@ -164,10 +177,10 @@ void SPI_Flash_Erase_Chip(void)
 {                                             
   SPI_FLASH_Write_Enable();                  //SET WEL 
   SPI_Flash_Wait_Busy();   
-    hal_w25q_spi_select();                            //使能器件   
+  hal_w25q_spi_select();                            //使能器件   
   hal_w25q_spi_txrx(W25X_ChipErase);        //发送片擦除命令  
-    hal_w25q_spi_release();                            //取消片选             
-    SPI_Flash_Wait_Busy();                     //等待芯片擦除结束
+  hal_w25q_spi_release();                            //取消片选             
+  SPI_Flash_Wait_Busy();                     //等待芯片擦除结束
 }   
 
 
@@ -175,15 +188,17 @@ void SPI_Flash_Erase_Chip(void)
 void SPI_Flash_Erase_Sector(uint32_t Dst_Addr)   
 {   
     Dst_Addr*=4096;
+  __disable_irq();  
   SPI_FLASH_Write_Enable();                  //SET WEL   
   SPI_Flash_Wait_Busy();   
-    hal_w25q_spi_select();                            //使能器件   
+  hal_w25q_spi_select();                            //使能器件   
   hal_w25q_spi_txrx(W25X_SectorErase);      //发送扇区擦除指令 
-  hal_w25q_spi_txrx((uint8_t)((Dst_Addr)>>16));  //发送24bit地址    
-  hal_w25q_spi_txrx((uint8_t)((Dst_Addr)>>8));   
-  hal_w25q_spi_txrx((uint8_t)Dst_Addr);  
-    hal_w25q_spi_release();                            //取消片选             
+  hal_w25q_spi_txrx((uint8_t)((Dst_Addr)>>16) & 0xff);  //发送24bit地址    
+  hal_w25q_spi_txrx((uint8_t)((Dst_Addr)>>8) & 0xff);   
+  hal_w25q_spi_txrx((uint8_t)Dst_Addr & 0xff);  
+  hal_w25q_spi_release();                            //取消片选             
   SPI_Flash_Wait_Busy();                   //等待擦除完成
+  __enable_irq();      
 }  
 
 

@@ -31,8 +31,8 @@ const uint8_t APBPrescTable[8]  = {0, 0, 0, 0, 1, 2, 3, 4};
 
 #define PLL_M      8
 #define PLL_N      336
-#define PLL_P      2
-#define PLL_Q      8
+#define PLL_P      2//4
+#define PLL_Q      8//7
 
 
 static void SetSysClock(void)
@@ -281,7 +281,7 @@ void Reset_Handler(void) {
     SCB->VTOR = (uintptr_t)&vector_table; /* Vector Table Relocation in Internal FLASH. */
     SetSysClock();//systemInit();
     SystemCoreClockUpdate();
-    set_sysclk_to_168();
+    //set_sysclk_to_168();
     init_systick(100000000 / 1000);
     DWTInit();
  

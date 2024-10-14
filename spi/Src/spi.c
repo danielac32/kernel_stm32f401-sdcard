@@ -82,6 +82,7 @@ void hal_w25q_spi_release(void)
 //--------------------------------------------
 uint8_t hal_w25q_spi_txrx(uint8_t data)
 {
+    
     while (!(SPI1->SR & SPI_SR_TXE));
     SPI1->DR = data;
     while (!(SPI1->SR & SPI_SR_RXNE));
