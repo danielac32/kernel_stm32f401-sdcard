@@ -238,7 +238,9 @@ __attribute__((section(".isr_vector"))) void (*vector_table[])(void) = {
     USART6_Handler,
     I2C3_EV_Handler,
     I2C3_ER_Handler,
-    RESERVED_74_Handler,
+    FPU_Handler,
+    SPI4_Handler,
+    /*RESERVED_74_Handler,
     RESERVED_75_Handler,
     RESERVED_76_Handler,
     RESERVED_77_Handler,
@@ -249,5 +251,5 @@ __attribute__((section(".isr_vector"))) void (*vector_table[])(void) = {
     RESERVED_82_Handler,
     RESERVED_83_Handler,
     SPI4_Handler,
-    SPI5_Handler,
+    SPI5_Handler,*/
 };
