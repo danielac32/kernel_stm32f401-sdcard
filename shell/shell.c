@@ -64,6 +64,7 @@ const	struct	cmdent	cmdtab[] = {
 	{"run",     FALSE,  xsh_run},
     {"format",  FALSE,  xsh_format},
 	{"test",    FALSE,  xsh_test},
+	{"loadkernel",    FALSE,  xsh_loadkernel},
 
 };
 

@@ -336,18 +336,27 @@ static inline uint32_t HandleOtherCSRRead( uint8_t *image, uint16_t csrno )
 static uint32_t HandleControlStore( uint32_t addy, uint32_t val )
 {
 	if ( addy == 0x10000000 ) // UART 8250 / 16550 Data Buffer
-		putchar( val );
+		fputc(val,CONSOLE);//putchar( val );
 
 	return 0;
 }
 
 static uint32_t HandleControlLoad( uint32_t addy )
 {
+	char c;
+	int len;
 
-	if( addy == 0x10000005 )
-		return usb_available();
-	else if( addy == 0x10000000 )
-		return usb_getc();
+	if( addy == 0x10000005 ){
+		len = read(CONSOLE, &c,1);
+		if (len == EOF) {
+			return 0;
+		}else return 1;
+		//return usb_available();
+	}
+	else if( addy == 0x10000000 ){
+		read(CONSOLE,&c,1);
+		return c;
+	}
 
 	return 0;
 }
