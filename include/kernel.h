@@ -104,3 +104,5 @@ syscall	kgetc(void);
 /* bit value */
 #define _BV(bit)                (0x01 << (bit))
 extern int ready_preemptive;
+
+ 

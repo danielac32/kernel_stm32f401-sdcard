@@ -100,7 +100,7 @@ int  initFat32(){
     return OK;
 }
 
-
+/*
 int usbTask(){
     while(1){
        if(usb_available()){
@@ -114,11 +114,11 @@ int usbTask(){
     }
     return 0;
 }
+*/
 
 
 
-
-
+uint32 idleTicks;
 
 int nullprocess(void) {
 	//ready(create(usbTask, 2048, 1, "usbtask", 0));
@@ -140,7 +140,9 @@ int nullprocess(void) {
 
 	//}
 
-
+    while(1){
+    	idleTicks++;
+    }
     //load_sd_file( 0, "kernel.bin" );
 	return OK;
 }
