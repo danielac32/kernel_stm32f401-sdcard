@@ -22,7 +22,7 @@ static uint32_t HandleOtherCSRRead( uint8_t *image, uint16_t csrno );
 
 #define MINIRV32WARN( x... ) printf( x );
 #define MINIRV32_DECORATE static
-#define MINI_RV32_RAM_SIZE 125000
+#define MINI_RV32_RAM_SIZE 126000
 #define MINIRV32_IMPLEMENTATION
 #define MINIRV32_POSTEXEC( pc, ir, retval )             \
 	{                                                   \
